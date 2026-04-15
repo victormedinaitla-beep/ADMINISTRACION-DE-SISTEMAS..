@@ -1,0 +1,163 @@
+🖥️ PRÁCTICA MÓDULO VII – SERVICIOS DE RED (NFS, SAMBA, DOMINIO)
+🔹 REQUISITOS PREVIOS
+
+✔️ 3 máquinas:
+
+VM Server (Linux)
+VM Cliente Linux
+VM Windows 10
+
+✔️ Modo: Bridge o Host-Only
+✔️ Probar conectividad:
+
+ping IP_DEL_SERVIDOR
+🔹 PRÁCTICA 1: NFS (Compartir entre Linux)
+📌 1. Instalar NFS (Servidor)
+sudo apt update
+sudo apt install nfs-kernel-server -y
+📌 2. Crear carpeta y archivos
+sudo mkdir /OS3
+cd /OS3
+sudo touch Adrian{1..100}.txt
+📌 3. Permisos
+sudo chmod -R 777 /OS3
+📌 4. Configurar exports
+sudo nano /etc/exports
+
+Agregar:
+
+/OS3 *(rw,sync,no_subtree_check)
+
+Aplicar:
+
+sudo exportfs -a
+sudo systemctl restart nfs-kernel-server
+📌 5. Cliente Linux
+
+Instalar:
+
+sudo apt install nfs-common -y
+
+Crear punto de montaje:
+
+mkdir ~/nfs
+
+Montar:
+
+sudo mount IP_SERVIDOR:/OS3 ~/nfs
+
+Verificar:
+
+ls ~/nfs
+
+👉 Deben aparecer los 100 archivos
+
+📌 6. Montaje automático
+sudo nano /etc/fstab
+
+Agregar:
+
+IP_SERVIDOR:/OS3 /home/usuario/nfs nfs defaults 0 0
+
+👉 Reiniciar:
+
+sudo reboot
+
+✔️ Se monta automáticamente 🔥
+
+🔹 PRÁCTICA 2: SAMBA (Compatible con Windows)
+📌 1. Instalar SAMBA
+sudo apt install samba -y
+📌 2. Crear carpeta compartida
+mkdir ~/samba
+cd ~/samba
+touch adrian{1..100}
+📌 3. Crear usuario
+sudo adduser adrian
+sudo smbpasswd -a adrian
+📌 4. Configurar SAMBA
+sudo nano /etc/samba/smb.conf
+
+Agregar al final:
+
+[SambaShare]
+   path = /home/usuario/samba
+   valid users = adrian
+   read only = no
+   browsable = yes
+
+Reiniciar:
+
+sudo systemctl restart smbd
+📌 5. Windows – Mapear unidad
+
+👉 En Windows:
+
+Explorador → “Este equipo”
+Conectar unidad de red
+
+Ruta:
+
+\\IP_SERVIDOR\SambaShare
+📌 6. Prueba
+
+✔️ Abrir adrian99
+Agregar:
+
+el zumzum de la carabela
+
+Guardar
+
+📌 7. Validar en Linux
+cat ~/samba/adrian99
+
+👉 Debe mostrar el cambio 🔥
+
+🔹 PRÁCTICA 3: CONTROLADOR DE DOMINIO (SAMBA4)
+📌 1. Instalar paquetes
+sudo apt install samba krb5-config winbind -y
+📌 2. Crear usuario
+sudo adduser lanegracubana
+sudo smbpasswd -a lanegracubana
+
+👉 Contraseña = tu matrícula
+
+📌 3. Configurar dominio
+sudo samba-tool domain provision
+
+👉 Responder:
+
+Realm → SO3.INET
+Domain → SO3
+DNS → SAMBA_INTERNAL
+📌 4. Iniciar servicio
+sudo systemctl restart smbd nmbd winbind
+📌 5. Windows – unir al dominio
+
+👉 En Windows:
+
+Configuración → Sistema → Nombre del equipo
+Cambiar → Dominio
+
+Ingresar:
+
+SO3.inet
+
+👉 Usuario:
+
+lanegracubana
+📌 6. Prueba
+
+✔️ Iniciar sesión con:
+
+Usuario: SO3\lanegracubana
+Contraseña: matrícula
+
+
+
+Servicio	Función
+NFS	Compartir archivos Linux-Linux
+Samba	Compartir Linux-Windows
+Samba4	Controlador de dominio
+fstab	Montaje automático
+smbpasswd	Usuarios Samba
