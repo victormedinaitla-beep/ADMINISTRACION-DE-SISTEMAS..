@@ -1,0 +1,159 @@
+🖥️ PRÁCTICAS – CLUSTER Y ALTA DISPONIBILIDAD
+
+🔹 REQUISITO PREVIO
+👉 Crear 2 servidores (VMs):
+
+
+Server1 (Primario)
+
+
+Server2 (Secundario)
+
+
+✔️ Ambos en modo Bridge
+✔️ Verificar conectividad:
+ping IP_DEL_OTRO_SERVIDOR
+
+🔹 PRÁCTICA 1: Sincronización con rsync
+
+📌 1. Crear carpeta y archivos
+En Server1:
+mkdir ~/datoscd ~/datostouch archivo{1..100}.txt
+👉 Crea 100 archivos automáticamente
+
+📌 2. Copiar con rsync
+rsync -avz ~/datos usuario@IP_SERVER2:/home/usuario/
+👉 Explicación:
+
+
+-a → modo archivo
+
+
+-v → verbose
+
+
+-z → compresión
+
+
+
+📌 3. Script de sincronización
+nano sync.sh
+Contenido:
+#!/bin/bashrsync -avz /home/usuario/datos usuario@IP_SERVER2:/home/usuario/
+
+Dar permisos:
+chmod +x sync.sh
+
+📌 4. Automatizar con cron (cada 1 minuto)
+crontab -e
+Agregar:
+* * * * * /home/usuario/sync.sh
+
+📌 5. Prueba
+En Server1:
+touch prueba.txt
+En Server2:
+ls ~/datos
+👉 Debe aparecer automáticamente 🔥
+
+🔹 PRÁCTICA 2: Cluster HA (Pacemaker + Corosync)
+
+📌 1. Instalar paquetes (en ambos servidores)
+sudo apt install pacemaker corosync pcs -y
+
+📌 2. Configurar usuario cluster
+sudo passwd hacluster
+
+📌 3. Iniciar servicios
+sudo systemctl enable pcsdsudo systemctl start pcsd
+
+📌 4. Autenticación entre nodos
+En Server1:
+sudo pcs cluster auth server1 server2 -u hacluster -p TU_PASSWORD
+
+📌 5. Crear cluster
+sudo pcs cluster setup --name mi_cluster server1 server2
+
+📌 6. Iniciar cluster
+sudo pcs cluster start --all
+
+📌 7. IP flotante
+sudo pcs resource create IPCluster ocf:heartbeat:IPaddr2 ip=192.168.X.100 cidr_netmask=24 op monitor interval=30s
+👉 Esta IP será la del cluster
+
+📌 8. Prueba
+ping 192.168.X.100
+👉 Reinicia un nodo:
+sudo reboot
+✔️ El ping debe continuar sin caerse
+
+🔹 PRÁCTICA 3: HA HTTP con Keepalived
+
+📌 1. Instalar Apache (en ambos)
+sudo apt install apache2 -y
+
+📌 2. Crear páginas diferentes
+Server1:
+echo "Server1" | sudo tee /var/www/html/index.html
+Server2:
+echo "Server2" | sudo tee /var/www/html/index.html
+
+📌 3. Instalar Keepalived
+sudo apt install keepalived -y
+
+📌 4. Configuración Server1 (MASTER)
+sudo nano /etc/keepalived/keepalived.conf
+vrrp_instance VI_1 {    state MASTER    interface eth0    virtual_router_id 51    priority 100    advert_int 1    authentication {        auth_type PASS        auth_pass 1234    }    virtual_ipaddress {        192.168.X.200    }}
+
+📌 5. Configuración Server2 (BACKUP)
+vrrp_instance VI_1 {    state BACKUP    interface eth0    virtual_router_id 51    priority 90    advert_int 1    authentication {        auth_type PASS        auth_pass 1234    }    virtual_ipaddress {        192.168.X.200    }}
+
+📌 6. Iniciar servicio
+sudo systemctl start keepalivedsudo systemctl enable keepalived
+
+📌 7. Prueba HA
+Abrir navegador:
+http://192.168.X.200
+👉 Debe mostrar:
+
+
+Server1
+
+
+Ahora apaga Server1:
+sudo poweroff
+👉 Refresca navegador → debe mostrar:
+
+
+Server2 🔥
+
+
+
+
+
+
+Ping a IP flotante
+
+
+rsync funcionando
+
+
+HA funcionando
+
+
+Web cambiando Server1 → Server2
+
+
+✔️ GitHub:
+
+
+Scripts
+
+
+Configuraciones
+
+
+Documentación
+
+
+
