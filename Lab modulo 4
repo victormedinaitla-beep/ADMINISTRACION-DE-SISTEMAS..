@@ -1,0 +1,147 @@
+🖥️ PRÁCTICAS – SERVICIOS EN LINUX (WEB, MAIL, IMPRESIÓN)
+🔹 PRÁCTICA 1: Servidor Web (Apache/Nginx)
+
+(Usaremos Apache2 porque es más fácil para este tipo de práctica)
+
+📌 1. Instalar Apache
+sudo apt update
+sudo apt install apache2 -y
+
+Verificar:
+
+sudo systemctl status apache2
+📌 2. Crear sitio web “Hola Mundo”
+sudo mkdir -p /var/www/hola
+sudo nano /var/www/hola/index.html
+
+Contenido:
+
+<h1>Hola Mundo</h1>
+📌 3. Crear Virtual Host (puerto 80)
+sudo nano /etc/apache2/sites-available/hola.conf
+
+Contenido:
+
+<VirtualHost *:80>
+    ServerName hola.local
+    DocumentRoot /var/www/hola
+</VirtualHost>
+
+Activar sitio:
+
+sudo a2ensite hola.conf
+sudo systemctl reload apache2
+📌 4. Segundo sitio (datos personales)
+sudo mkdir -p /var/www/estudiante
+sudo nano /var/www/estudiante/index.html
+
+Contenido:
+
+<h1>Tu Nombre</h1>
+<p>Matrícula: 2020-XXXX</p>
+<p>Materia: Redes / Sistemas</p>
+📌 5. Virtual Host en puerto 8080
+
+Editar puertos:
+
+sudo nano /etc/apache2/ports.conf
+
+Agregar:
+
+Listen 8080
+
+Crear host:
+
+sudo nano /etc/apache2/sites-available/estudiante.conf
+
+Contenido:
+
+<VirtualHost *:8080>
+    ServerName estudiante.local
+    DocumentRoot /var/www/estudiante
+</VirtualHost>
+
+Activar:
+
+sudo a2ensite estudiante.conf
+sudo systemctl reload apache2
+
+👉 Acceso:
+
+http://IP
+ → Hola Mundo
+http://IP:8080
+ → Datos personales
+🔹 PRÁCTICA 2: Servidor de correo (Postfix)
+📌 1. Instalar Postfix
+sudo apt install postfix mailutils -y
+
+👉 Seleccionar:
+
+Internet Site
+Nombre de dominio (ej: localhost)
+📌 2. Enviar correo
+echo "Tu Nombre - Tu Matrícula" | mail -s "MambruSeFueALaGuerra" os3conadrian@gmail.com
+
+👉 IMPORTANTE:
+✔️ Debe llegar el correo
+✔️ Si no llega → no te corrigen
+
+🔹 PRÁCTICA 3: Servidor de impresión (CUPS)
+📌 1. Instalar CUPS
+sudo apt install cups -y
+📌 2. Habilitar servicio
+sudo systemctl enable cups
+sudo systemctl start cups
+📌 3. Acceder a CUPS
+
+En navegador:
+
+http://localhost:631
+📌 4. Instalar impresora PDF
+sudo apt install printer-driver-cups-pdf -y
+
+👉 Esto crea una impresora virtual PDF automáticamente
+
+📌 5. Compartir impresora
+
+Editar configuración:
+
+sudo nano /etc/cups/cupsd.conf
+
+Cambiar:
+
+Listen 0.0.0.0:631
+
+Y permitir acceso en:
+
+<Location />
+  Allow all
+</Location>
+
+Reiniciar:
+
+sudo systemctl restart cups
+📌 6. Conectar desde Windows
+
+👉 Ir a:
+
+Panel de control → Impresoras
+Agregar impresora por IP
+
+Usar:
+
+http://IP:631/printers/PDF
+📌 7. Prueba de impresión
+
+👉 Imprimir desde Word
+✔️ Se guarda como PDF en:
+
+/home/usuario/PDF/
+🔥 EXPLICACIÓN DE SERVICIOS
+Servicio	Función
+Apache	Servidor web
+Postfix	Envío de correos
+CUPS	Servidor de impresión
+VirtualHost	Permite varios sitios
+mail	Envía correos desde terminal
