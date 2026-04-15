@@ -1,0 +1,152 @@
+🛡️ PRÁCTICAS – SEGURIDAD EN LINUX
+🔹 PRÁCTICA 1: CIFRADO CON GPG
+📌 1. Instalar GPG
+sudo apt update
+sudo apt install gnupg2 -y
+📌 2. Crear directorio y archivo
+mkdir ~/cifrado
+cd ~/cifrado
+nano secreto.txt
+
+Contenido:
+
+Este es un mensaje secreto
+📌 3. Cifrar archivo
+gpg -c secreto.txt
+
+👉 Te pedirá una contraseña
+👉 Se genera: secreto.txt.gpg
+
+📌 4. Intentar acceder
+cat secreto.txt.gpg
+
+👉 ❌ No se entiende (está cifrado)
+
+📌 5. Descifrar archivo
+gpg secreto.txt.gpg
+
+👉 Introducir contraseña
+
+Ver contenido:
+
+cat secreto.txt
+🔹 PRÁCTICA 2: FIREWALL (IPTABLES + UFW)
+📌 1. Habilitar servicios
+sudo apt install apache2 vsftpd openssh-server -y
+
+Verificar:
+
+systemctl status apache2
+systemctl status vsftpd
+systemctl status ssh
+📌 2. Probar servicios
+
+Desde navegador / terminal:
+
+HTTP → http://IP
+FTP → ftp IP
+SSH → ssh usuario@IP
+📌 3. Bloquear con iptables
+sudo iptables -A INPUT -p tcp --dport 80 -j DROP
+sudo iptables -A INPUT -p tcp --dport 21 -j DROP
+sudo iptables -A INPUT -p tcp --dport 22 -j DROP
+
+👉 Ahora:
+
+❌ No abre web
+❌ No conecta FTP
+❌ No conecta SSH
+📌 4. Habilitar nuevamente
+sudo iptables -D INPUT -p tcp --dport 80 -j DROP
+sudo iptables -D INPUT -p tcp --dport 21 -j DROP
+sudo iptables -D INPUT -p tcp --dport 22 -j DROP
+📌 5. Usar UFW (Debian/Ubuntu)
+
+Activar:
+
+sudo ufw enable
+
+Bloquear:
+
+sudo ufw deny 80
+sudo ufw deny 21
+sudo ufw deny 22
+
+Permitir:
+
+sudo ufw allow 80
+sudo ufw allow 21
+sudo ufw allow 22
+
+Ver estado:
+
+sudo ufw status
+🔹 PRÁCTICA 3: IDS SNORT
+📌 1. Instalar Snort
+sudo apt install snort -y
+📌 2. Editar reglas
+sudo nano /etc/snort/rules/local.rules
+
+Agregar:
+
+alert icmp any any -> any any (msg:"PING detectado"; sid:1001;)
+alert tcp any any -> any 21 (msg:"FTP detectado"; sid:1002;)
+alert tcp any any -> any 22 (msg:"SSH detectado"; sid:1003;)
+alert tcp any any -> any 80 (msg:"HTTP detectado"; sid:1004;)
+📌 3. Ejecutar Snort
+sudo snort -A console -q -c /etc/snort/snort.conf -i eth0
+📌 4. Pruebas desde Windows
+ping IP
+ftp IP
+ssh usuario@IP
+
+👉 Snort debe mostrar alertas 🔥
+
+🔹 PRÁCTICA 4: 2FA SSH (Google Authenticator)
+📌 1. Instalar
+sudo apt install libpam-google-authenticator -y
+📌 2. Configurar usuario
+google-authenticator
+
+👉 Responder:
+
+yes
+yes
+yes
+
+👉 Guarda QR / código
+
+📌 3. Configurar PAM
+sudo nano /etc/pam.d/sshd
+
+Agregar:
+
+auth required pam_google_authenticator.so
+📌 4. Configurar SSH
+sudo nano /etc/ssh/sshd_config
+
+Cambiar:
+
+ChallengeResponseAuthentication yes
+
+Reiniciar:
+
+sudo systemctl restart ssh
+📌 5. Probar conexión
+
+Desde Windows:
+
+ssh usuario@IP
+
+👉 Pedirá:
+
+Contraseña
+Código de Google Authenticator 🔥
+🔥 EXPLICACIÓN CLAVE
+Herramienta	Función
+GPG	Cifrado de archivos
+iptables	Firewall bajo nivel
+UFW	Firewall fácil
+Snort	IDS (detección intrusos)
+PAM	Autenticación
+Google Auth	2FA
