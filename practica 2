@@ -1,0 +1,116 @@
+PRÁCTICAS DE ADMINISTRACIÓN DE SISTEMAS LINUX
+🔹 PRÁCTICA 1: Gestión de paquetes
+📌 Actualizar repositorios
+sudo apt update
+sudo apt upgrade -y
+
+👉 update: actualiza la lista de paquetes
+👉 upgrade: instala las actualizaciones disponibles
+
+📌 Ver repositorios activos
+cat /etc/apt/sources.list
+
+👉 Muestra los repositorios configurados en el sistema
+
+📌 Buscar herramienta en repositorios
+apt search bashtop
+
+👉 Verifica si el paquete está disponible
+
+📌 Instalar Bashtop
+sudo apt install bashtop -y
+
+👉 Instala el monitor de recursos
+
+Ejecutar:
+
+bashtop
+📌 Desinstalar completamente
+sudo apt purge bashtop -y
+
+👉 Elimina programa + archivos de configuración
+
+📌 Eliminar dependencias no usadas
+sudo apt autoremove -y
+
+👉 Limpia paquetes innecesarios
+
+🔹 PRÁCTICA 2: Tareas programadas
+📌 1. Cron – actualizar sistema a las 11 PM
+crontab -e
+
+Agregar:
+
+0 23 * * * sudo apt update && sudo apt upgrade -y
+
+👉 Ejecuta todos los días a las 11:00 PM
+
+📌 2. Reiniciar domingos 3 AM
+0 3 * * 0 sudo reboot
+
+👉 0 = domingo
+
+📌 3. Comando at
+
+Ver contenido antes:
+
+ls /tmp
+
+Programar tarea:
+
+echo "rm -rf /tmp/*" | at now + 1 minute
+
+👉 Elimina archivos en 1 minuto
+
+Ver después:
+
+ls /tmp
+🔹 PRÁCTICA 3: Gestión de discos
+📌 1. Ver disco nuevo
+lsblk
+
+👉 Muestra discos conectados
+
+📌 2. Crear partición
+sudo fdisk /dev/sdb
+
+👉 (suponiendo que el nuevo disco es /dev/sdb)
+
+Pasos dentro:
+
+n → nueva partición
+w → guardar
+📌 3. Formatear en ext4
+sudo mkfs.ext4 /dev/sdb1
+
+👉 Formatea el disco
+
+📌 4. Crear carpeta en escritorio
+mkdir ~/Escritorio/disco
+📌 5. Montar disco
+sudo mount /dev/sdb1 ~/Escritorio/disco
+📌 6. Crear archivo
+cd ~/Escritorio/disco
+touch AdrianAlcantara.txt
+📌 7. Desmontar
+sudo umount /dev/sdb1
+📌 8. Montar en /mnt
+sudo mount /dev/sdb1 /mnt
+📌 9. Verificar archivo
+ls /mnt
+
+👉 Debe aparecer:
+AdrianAlcantara.txt
+
+🔥 EXPLICACIÓN DE COMANDOS CLAVE
+Comando	Función
+apt update	Actualiza repos
+apt upgrade	Actualiza paquetes
+apt purge	Borra programa completo
+autoremove	Limpia dependencias
+crontab -e	Programa tareas
+at	Ejecuta tareas en el futuro
+fdisk	Administra discos
+mkfs	Formatea
+mount	Monta discos
+umount	Desmonta
