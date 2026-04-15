@@ -100,8 +100,7 @@ rm -r materia
 
 👉 -r elimina carpeta y todo su contenido.
 
-🔥 EXPLICACIÓN DE COMANDOS (IMPORTANTE PARA GITHUB)
-Comando	Función
+
 adduser	Crea un usuario
 usermod	Modifica usuario
 groupadd	Crea grupo
