@@ -1,0 +1,141 @@
+PRÁCTICAS – DOCKER Y CONTENEDORES
+🔹 PRÁCTICA 1: Docker + NGINX
+📌 1. Instalar Docker
+sudo apt update
+sudo apt install docker.io -y
+
+Activar:
+
+sudo systemctl enable docker
+sudo systemctl start docker
+
+Verificar:
+
+docker --version
+📌 2. Descargar imagen NGINX
+docker pull nginx
+📌 3. Crear volumen persistente
+mkdir -p /home/website
+📌 4. Crear página HTML
+nano /home/website/index.html
+
+Contenido:
+
+<h1>Tu Nombre</h1>
+<p>Matrícula: 2020-XXXX</p>
+📌 5. Crear contenedor
+docker run -d \
+-p 8888:80 \
+-v /home/website:/usr/share/nginx/html \
+--name nginx_container nginx
+📌 6. Verificar en navegador
+
+👉 Abrir:
+
+http://127.0.0.1:8888
+
+✔️ Debe mostrar tu página 🔥
+
+🔹 PRÁCTICA 2: PORTAINER
+📌 1. Descargar imagen
+docker pull portainer/portainer-ce
+📌 2. Crear volumen
+docker volume create portainer_data
+📌 3. Crear contenedor
+docker run -d \
+-p 8000:8000 \
+-p 9443:9443 \
+--name portainer \
+--restart=always \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v portainer_data:/data \
+portainer/portainer-ce
+📌 4. Acceder a Portainer
+
+👉 Navegador:
+
+https://127.0.0.1:9443
+
+👉 Crear usuario admin
+
+👉 Seleccionar:
+
+Docker local
+📌 5. Detener contenedor NGINX desde Portainer
+
+👉 Ir a:
+
+Containers
+nginx_container
+Stop
+
+👉 Verificar en navegador:
+
+http://127.0.0.1:8888
+
+❌ Ya no debe cargar
+
+🔹 PRÁCTICA 3: WORDPRESS CON DOCKER-COMPOSE
+📌 1. Instalar Docker Compose
+sudo apt install docker-compose -y
+📌 2. Crear archivo
+nano docker-compose.yml
+📌 3. Contenido del archivo
+version: '3.8'
+
+services:
+
+  db:
+    image: mysql:5.7
+    container_name: wordpress_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user123
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_app
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: user123
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+📌 4. Desplegar contenedores
+docker-compose up -d
+📌 5. Acceder a WordPress
+
+👉 Navegador:
+
+http://127.0.0.1:8080
+📌 6. Configurar WordPress
+
+👉 Elegir:
+
+Idioma
+Usuario
+Contraseña
+Sitio
+
+✔️ Finalizar instalación
+
+
+Herramienta	Función
+Docker	Contenedores
+NGINX	Servidor web
+Portainer	Panel gráfico Docker
+Docker Compose	Multi-contenedores
+WordPress	CMS web
+MySQL	Base de datos
