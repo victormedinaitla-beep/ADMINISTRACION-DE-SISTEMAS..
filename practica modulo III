@@ -1,0 +1,148 @@
+🖥️ PRÁCTICAS – ADMINISTRACIÓN LINUX (GRUB, SCRIPTS, SSH)
+🔹 PRÁCTICA 1: Configuración de GRUB y recuperación
+📌 1. Cambiar tiempo de espera de GRUB a 20 segundos
+
+Editar archivo:
+
+sudo nano /etc/default/grub
+
+Buscar la línea:
+
+GRUB_TIMEOUT=10
+
+Cambiar a:
+
+GRUB_TIMEOUT=20
+📌 Aplicar cambios
+sudo update-grub
+
+👉 Actualiza la configuración del gestor de arranque
+
+📌 Verificación (mostrar resultado)
+
+Reiniciar sistema:
+
+sudo reboot
+
+👉 El menú de GRUB ahora debe mostrarse durante 20 segundos
+
+📌 2. Recuperación de contraseña root
+Método usando GRUB:
+Reiniciar sistema
+Presionar e en GRUB
+Buscar línea que contiene:
+linux /boot/vmlinuz...
+Agregar al final:
+init=/bin/bash
+Presionar Ctrl + X para iniciar
+Cambiar contraseña:
+mount -o remount,rw /
+passwd root
+
+👉 Introducir nueva contraseña
+
+Reiniciar:
+exec /sbin/init
+🔹 PRÁCTICA 2: SCRIPTS
+📌 1. Script de backup con TAR
+
+Crear archivo:
+
+nano backup.sh
+
+Contenido:
+
+#!/bin/bash
+
+fecha=$(date +"%d-%m-%Y_%H-%M")
+
+tar -czvf backup_$fecha.tar.gz /home/$USER
+
+Dar permisos:
+
+chmod +x backup.sh
+
+Ejecutar:
+
+./backup.sh
+
+👉 Crea un backup con fecha y hora
+
+📌 2. Script con ifconfig y nombre personalizado
+
+Crear archivo:
+
+nano red.sh
+
+Contenido:
+
+#!/bin/bash
+
+echo "Ingrese el nombre del archivo:"
+read nombre
+
+ifconfig > ~/Escritorio/$nombre.txt
+
+echo "Archivo creado en el escritorio"
+
+Dar permisos:
+
+chmod +x red.sh
+
+Ejecutar:
+
+./red.sh
+🔹 PRÁCTICA 3: RED + SSH + LLAVES
+📌 1. Configurar modo Bridge
+
+👉 Desde VirtualBox / VMware:
+
+Ir a configuración de red
+Seleccionar Bridge Adapter
+📌 Ver IP de la VM
+ip a
+📌 Probar desde Windows
+ping 192.168.X.X
+
+👉 Debe responder
+
+📌 2. Instalar y habilitar SSH
+sudo apt install openssh-server -y
+
+Verificar:
+
+sudo systemctl status ssh
+📌 Conectarse desde Windows
+ssh usuario@IP
+📌 3. Generar llaves en Windows
+
+En PowerShell:
+
+ssh-keygen
+
+👉 Presionar ENTER en todo (sin passphrase)
+
+📌 Archivos generados:
+Clave privada → id_rsa
+Clave pública → id_rsa.pub
+📌 4. Copiar clave al servidor
+ssh-copy-id usuario@IP
+
+👉 O manual:
+
+cat id_rsa.pub >> ~/.ssh/authorized_keys
+📌 5. Probar conexión sin contraseña
+ssh usuario@IP
+
+👉 Debe entrar automáticamente 🔥
+
+🔥 EXPLICACIÓN DE COMANDOS
+Comando	Función
+update-grub	Actualiza GRUB
+passwd	Cambia contraseña
+tar	Comprime archivos
+date	Obtiene fecha/hora
+ifconfig	Info de red
+ssh	Conexión remota
+ssh-keygen	Genera llaves
+ssh-copy-id	Copia clave pública
