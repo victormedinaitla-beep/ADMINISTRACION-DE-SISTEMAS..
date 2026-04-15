@@ -1,0 +1,147 @@
+🖥️ PRÁCTICAS – AUTOMATIZACIÓN Y ADMINISTRACIÓN
+🔹 PRÁCTICA 1: INSTALACIÓN DE WEBMIN
+📌 1. Instalar Webmin
+sudo apt update
+sudo apt install wget apt-transport-https software-properties-common -y
+
+wget http://www.webmin.com/download/deb/webmin-current.deb
+sudo dpkg -i webmin-current.deb
+sudo apt --fix-broken install -y
+📌 2. Acceder a Webmin
+
+👉 Navegador:
+
+https://IP_SERVIDOR:10000
+
+👉 Usuario: root
+👉 Contraseña: la del sistema
+
+📌 3. Funciones a mostrar (IMPORTANTE EN EL PDF)
+✔️ Administración de usuarios
+Crear usuario
+Eliminar usuario
+✔️ Gestión de servicios
+Ir a: System → Bootup and Shutdown
+Iniciar / detener / reiniciar SSH
+✔️ Configuración de red
+Networking → Network Configuration
+Configurar IP estática
+✔️ Administración de software
+Instalar paquetes
+Actualizar sistema
+Eliminar programas
+✔️ Gestión de archivos
+Tools → File Manager
+Crear, editar y eliminar archivos
+✔️ Monitorización
+Dashboard
+Ver:
+CPU
+RAM
+Disco
+🔹 PRÁCTICA 2: TERRAFORM + DIGITALOCEAN
+📌 1. Instalar Terraform
+sudo apt update
+sudo apt install -y gnupg software-properties-common
+
+wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+sudo apt install terraform -y
+📌 2. Crear archivo Terraform
+nano main.tf
+📌 3. Configuración
+provider "digitalocean" {
+  token = "TU_TOKEN"
+}
+
+resource "digitalocean_droplet" "vm" {
+  image  = "ubuntu-22-04-x64"
+  name   = "OS3vm"
+  region = "nyc1"
+  size   = "s-1vcpu-1gb"
+  ssh_keys = ["TU_SSH_KEY_ID"]
+}
+📌 4. Ejecutar Terraform
+terraform init
+terraform apply
+
+👉 Escribir: yes
+
+📌 5. Validación
+
+✔️ Conectar:
+
+ssh root@IP_PUBLICA
+
+✔️ Ver en portal de DigitalOcean
+
+🔹 PRÁCTICA 3: INSTALACIÓN DE ANSIBLE
+📌 1. Instalar Ansible
+sudo apt update
+sudo apt install ansible -y
+📌 2. Crear usuario ansible
+sudo adduser ansible
+sudo usermod -aG sudo ansible
+📌 3. Configurar SSH sin contraseña
+ssh-keygen
+ssh-copy-id ansible@IP_LINUX
+📌 4. Inventario
+sudo nano /etc/ansible/hosts
+[linux]
+IP_LINUX ansible_user=ansible
+
+[win]
+IP_WINDOWS
+📌 5. Probar conexión
+ansible linux -m ping
+ansible win -m win_ping
+🔹 PRÁCTICA 4: COMANDOS AD-HOC
+📌 1. Copiar archivo en Windows
+ansible win -m win_copy -a "src=C:\\Users\\usuario\\Desktop\\archivo.txt dest=C:\\Users\\usuario\\Documents\\archivo.txt"
+📌 2. Reiniciar Linux
+ansible linux -m reboot
+🔹 PRÁCTICA 5: PLAYBOOKS
+📌 1. Playbook Windows (Notepad++)
+nano notepad.yml
+- name: Instalar Notepad++
+  hosts: win
+  tasks:
+    - name: Instalar Notepad++
+      win_chocolatey:
+        name: notepadplusplus
+        state: present
+
+Ejecutar:
+
+ansible-playbook notepad.yml
+📌 2. Playbook Linux (NGINX)
+nano nginx.yml
+- name: Instalar NGINX
+  hosts: linux
+  become: yes
+
+  tasks:
+    - name: Instalar nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Iniciar servicio
+      service:
+        name: nginx
+        state: started
+
+Ejecutar:
+
+ansible-playbook nginx.yml
+EXPLICACIÓN CLAVEHerramienta	Función
+Webmin	Administración web del servidor
+Terraform	Infraestructura como código
+DigitalOcean	Cloud
+Ansible	Automatización
+Playbooks	Automatización estructurada
+Ad-hoc	Comandos rápidos
