@@ -1,0 +1,104 @@
+📞 PRÁCTICA: INSTALACIÓN DE ISSABEL PBX
+🔹 1. Crear VM en DigitalOcean
+
+Configuración:
+
+Sistema: Rocky Linux 8
+Nombre: IssabelPBX
+Región: (ej: nyc1)
+Plan: básico
+
+✔️ Crear y copiar la IP pública
+
+🔹 2. Conectarse por SSH
+ssh root@IP_PUBLICA
+🔹 3. Actualizar sistema e instalar wget
+yum update -y
+yum install wget -y
+🔹 4. Descargar instalador Issabel
+wget http://repo.issabel.org/issabel5-netinstall.sh
+
+Dar permisos:
+
+chmod +x issabel5-netinstall.sh
+
+Ejecutar:
+
+./issabel5-netinstall.sh
+🔹 5. Instalación (MUY IMPORTANTE)
+
+Durante el proceso elegir:
+
+✔️ Asterisk 16 o 18
+✔️ Definir contraseña de MariaDB
+✔️ Crear usuario y contraseña del portal web
+
+⏳ Esperar a que termine (puede tardar bastante)
+
+🔹 6. Desactivar fail2ban
+
+Después de instalar:
+
+sudo systemctl stop fail2ban
+
+👉 Esto evita que te bloquee el acceso
+
+🔹 7. Acceder al panel web
+
+👉 En navegador:
+
+http://IP_PUBLICA
+
+👉 Iniciar sesión con:
+
+Usuario creado
+Contraseña creada
+🔹 8. Crear extensiones
+
+Ir a:
+
+👉 PBX → PBX Configuration → Extensions → Add Extension → Generic SIP Device
+
+📌 Crear extensión 1
+Extension: 2221
+Secret: Teletubies123$
+
+Guardar → Apply Config
+
+📌 Crear extensión 2
+Extension: 2220
+Secret: Teletubies123$
+
+Guardar → Apply Config
+
+🔹 9. Instalar Softphone
+
+En el celular o PC instalar:
+
+Zoiper
+MicroSIP
+🔹 10. Configurar Softphone
+
+Datos:
+
+Usuario: 2221
+Password: Teletubies123$
+Host: IP_PUBLICA
+
+✔️ Registrar cuenta
+
+🔹 11. Prueba de llamada
+
+👉 Llamar desde:
+
+2221 → 2220
+
+✔️ Si suena → TODO CORRECTO 🔥
+
+🔥 EXPLICACIÓN CLAVE
+Elemento	Función
+Issabel PBX	Central telefónica IP
+Asterisk	Motor de llamadas
+SIP	Protocolo de voz
+Extensión	Usuario telefónico
+Softphone	Teléfono virtual
